@@ -11,17 +11,16 @@
         table.string('passwordhash').notNullable();
         table.timestamps(true, true, true);
     })
-    .createTable('wallet', (table) => {
+    .createTable('wallets', (table) => {
         table.increments();
         table.string('walletId', 8).notNullable().unique();
-        table.float('amount', 2).notNullable();
+        table.float('amount', 2).notNullable().defaultTo(0.00);
         table.integer('user_id').unsigned().unique().references('id').inTable('users').onDelete('CASCADE');
-        
         table.timestamps(true, true, true);
     })
     .createTable('faux_auth', (table) => {
-        table.foreign('user_id').unique().references('users.id').onDelete('CASCADE');
-        table.foreign('passwordhash').unique().references('users.passwordhash').onDelete('CASCADE');
+        table.increments();
+        table.integer('user_id').unsigned().unique().references('users.id').onDelete('CASCADE');
         table.string('token').unique();
         table.timestamps(true, true, true);
     });
