@@ -1,4 +1,5 @@
 // Update with your config settings.
+require('dotenv').config();
 
 /**
  * @type { Object.<string, import("knex").Knex.Config> }
@@ -6,7 +7,7 @@
 module.exports = {
 
     test: {
-        client: 'mysql',
+        client: 'mysql2',
         connection: {
             host : process.env.DB_HOST || '127.0.0.1',
             port : process.env.DB_PORT || 3306,
@@ -23,7 +24,7 @@ module.exports = {
     },
   
     development: {
-        client: 'mysql',
+        client: 'mysql2',
         connection: {
             host : process.env.DB_HOST || '127.0.0.1',
             port : process.env.DB_PORT || 3306,
@@ -40,7 +41,7 @@ module.exports = {
     },
 
     staging: {
-        client: 'mysql',
+        client: 'mysql2',
         connection: process.env.DATABASE_URL,
         migrations: {
             directory: __dirname + '/db/migrations',
@@ -51,7 +52,7 @@ module.exports = {
     },
 
     production: {
-        client: 'mysql',
+        client: 'mysql2',
         connection: process.env.DATABASE_URL,
         migrations: {
             directory: __dirname + '/db/migrations',
