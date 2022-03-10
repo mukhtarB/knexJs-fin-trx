@@ -18,6 +18,12 @@
         table.integer('user_id').unsigned().unique().references('id').inTable('users').onDelete('CASCADE');
         
         table.timestamps(true, true, true);
+    })
+    .createTable('faux_auth', (table) => {
+        table.foreign('user_id').unique().references('users.id').onDelete('CASCADE');
+        table.foreign('passwordhash').unique().references('users.passwordhash').onDelete('CASCADE');
+        table.string('token').unique();
+        table.timestamps(true, true, true);
     });
 };
 
@@ -27,5 +33,6 @@
  */
 exports.down = function(knex, Promise) {
     return knex.schema.dropTable(users)
-    .dropTable(wallet);
+    .dropTable(wallet)
+    .dropTable(faux_auth);
 };
