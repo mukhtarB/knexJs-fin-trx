@@ -4,7 +4,6 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 require('dotenv').config();
-const {encode} = require('./middleware/auth');
 
 // route imports
 const users = require('./api/users');
@@ -13,13 +12,10 @@ const users = require('./api/users');
 const app = express();
 
 // middlewares
-// if (process.env.NODE_ENV !== 'test') {
-    app.use(logger('dev'));
-// }
+app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(encode);
 
 // api routing
 app.use('/api/v1/users', users);
