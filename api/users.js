@@ -1,29 +1,48 @@
 const express = require('express');
-const {encode} = require('../middleware/auth')
+const {encode} = require('../middleware/hash');
+const {insert} = require('../db/queries');
 
 const router = express.Router();
+
+router.use('/register', encode);
 
 router.get('/', (req, res) => {
     res.send('crud users api');
 });
 
-// user reg endpoint
-router.post('/register', encode, (req, res) => {
+// user registeration endpoint
+router.post('/register', encode, async (req, res) => {
+
+    // TO DO:
+    // [x] - hash password
+    // [x] - save user to db via knex queries
+    // [x] - generate walletID for user
+
     const userDetails = {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
-        password: req.body.password
+        passwordhash: req.body.password
     };
 
-    console.table(userDetails);
+    try {
+        const user = await insert('users', userDetails);
 
-    // TO DO:
-    // hash password
-    // save to db via knex queries
-    // generate token subsequent for auth
-    // save token against user
-    res.status(200).json(userDetails);
+        const walletDetails = {
+            walletId: Math.floor(Math.random() * 90000000),
+            user_id: user.id,
+        };
+        const wallet = await insert('wallets', walletDetails);
+
+        res.status(200).json({
+            user,
+            wallet
+        });
+
+    } catch (error) {
+        res.status(500).send(error);
+    };
+
 });
 
 module.exports = router;
