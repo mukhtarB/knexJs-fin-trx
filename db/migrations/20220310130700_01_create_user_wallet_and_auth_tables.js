@@ -15,13 +15,13 @@
         table.increments();
         table.string('walletId', 8).notNullable().unique();
         table.float('amount', 2).notNullable().defaultTo(0.00);
-        table.integer('user_id').unsigned().unique().references('id').inTable('users').onDelete('CASCADE');
+        table.integer('user_id').notNullable().unsigned().unique().references('id').inTable('users').onDelete('CASCADE');
         table.timestamps(true, true, true);
     })
-    .createTable('faux_auth', (table) => {
+    .createTable('auth', (table) => {
         table.increments();
-        table.integer('user_id').unsigned().unique().references('users.id').onDelete('CASCADE');
-        table.string('token').unique();
+        table.integer('user_id').notNullable().unsigned().unique().references('users.id').onDelete('CASCADE');
+        table.string('token').notNullable().unique();
         table.timestamps(true, true, true);
     });
 };
