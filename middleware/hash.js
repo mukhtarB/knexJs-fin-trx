@@ -2,9 +2,12 @@ const bcrypt = require('bcrypt');
 
 // using bcrypt to hash a str
 const encode = (req, res, next) => {
+    if (!req.body?.firstName) return res.send(401, 'Unauthorized')
+    if (!req.body?.lastName) return res.send(401, 'Unauthorized')
+    if (!req.body?.email) return res.send(401, 'Unauthorized')
 
     // require password
-    if (req.body.password) {
+    if (req.body?.password) {
         bcrypt.genSalt(10, (err, salt) => {
             if (err) return next(err);
     
@@ -18,12 +21,11 @@ const encode = (req, res, next) => {
     } else {
         // return unauthorized
         res.status(401).json({
-            err:"Unauthorized",
+            err: "Unauthorized",
             msg: "password is required"
         });
     };
-
-    
+        
 };
 
 module.exports = {encode};
