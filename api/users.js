@@ -2,13 +2,13 @@ const {Router} = require('express');
 const router = Router();
 
 // import utilities
-const {hashPassword} = require('../utilities/hash');
+const {hashPassword, comparePassword} = require('../utilities/hash');
 
 // middleware
 // router.use('/register', encode);
 
 // queries
-const {insert} = require('../db/queries');
+const {insert, selectOne} = require('../db/queries');
 
 
 // endpoints
@@ -47,6 +47,28 @@ router.post('/register', async (req, res) => {
         res.status(500).json(['Internal ServerError', error]);
     };
 
+});
+
+// user login endpoint
+router.post('/login', async (req, res) => {
+    // TO DO:
+    // [x] - retreive & verify login details
+    // [x] - utility: compare passwords
+    // [x] - utility: onSuccess generate token, else unauthorized
+    // [x] - query: save token
+    // [x] - set cookies for token
+
+    // use email to retrieve passwordhash
+    try {
+        const user = await selectOne('users', req.body.email);
+        const isAuth = await comparePassword(req.body.password, user.passwordhash);
+
+        // if (isAuth) //generate token and save to db
+
+        res.status(200).send({isAuth});
+    } catch (error) {
+        res.status(500).json(['Internal ServerError', error]);
+    };
 });
 
 module.exports = router;
