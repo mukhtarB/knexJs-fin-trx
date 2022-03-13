@@ -3,12 +3,14 @@ const router = Router();
 
 // import utilities
 const {hashPassword, comparePassword} = require('../utilities/hash');
+const {generateToken} = require('../utilities/generateToken');
 
 // middleware
 // router.use('/register', encode);
 
 // queries
 const {insert, selectOne} = require('../db/queries');
+const { cookie } = require('express/lib/response');
 
 
 // endpoints
@@ -56,19 +58,33 @@ router.post('/login', async (req, res) => {
     // [x] - utility: compare passwords
     // [x] - utility: onSuccess generate token, else unauthorized
     // [x] - query: save token
-    // [x] - set cookies for token
+    // [x] - set headers/cookies for token
 
-    // use email to retrieve passwordhash
-    try {
-        const user = await selectOne('users', req.body.email);
+    // try {
+        const user = await selectOne('users', 'email', req.body.email);
         const isAuth = await comparePassword(req.body.password, user.passwordhash);
 
-        // if (isAuth) //generate token and save to db
+        if (isAuth) {
+            
+            const tokenID = await insert('auth', {
+                user_id: user.id,
+                token: generateToken(user.passwordhash)
+            });
 
-        res.status(200).send({isAuth});
-    } catch (error) {
-        res.status(500).json(['Internal ServerError', error]);
-    };
+            const token = await selectOne('auth', 'id', tokenID);
+            console.log(token)
+
+            // set cookie or set headers
+        } else {
+            res.status(401).json({
+                err: 'Unauthorized access',
+                msg: 'Incorrect Username or Password'
+            });
+        };
+
+    // } catch (error) {
+    //     res.status(500).json(['Internal ServerError', error]);
+    // };
 });
 
 module.exports = router;
