@@ -66,15 +66,19 @@ router.post('/login', async (req, res) => {
 
         if (isAuth) {
             
-            const tokenID = await insert('auth', {
+            const userAuth = await insert('auth', {
                 user_id: user.id,
                 token: generateToken(user.passwordhash)
             });
 
-            const token = await selectOne('auth', 'id', tokenID);
-            console.log(token)
-
             // set cookie or set headers
+            if (userAuth) res.header("token", userAuth.token);
+
+            res.status(200).json({
+                message: "User Authenticated Successfully",
+                uid: user.id,
+                token: userAuth.token
+            });
         } else {
             res.status(401).json({
                 err: 'Unauthorized access',
