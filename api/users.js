@@ -40,6 +40,9 @@ router.post('/register', async (req, res) => {
             user_id: user.id,
         });
 
+        if (user.code) throw user;
+        if (wallet.code) throw wallet;
+
         res.status(200).json({
             user,
             wallet
@@ -53,6 +56,7 @@ router.post('/register', async (req, res) => {
 
 // user login endpoint
 router.post('/login', async (req, res) => {
+
     // TO DO:
     // [x] - retreive & verify login details
     // [x] - utility: compare passwords
@@ -60,7 +64,7 @@ router.post('/login', async (req, res) => {
     // [x] - query: save token
     // [x] - set headers/cookies for token
 
-    // try {
+    try {
         const user = await selectOne('users', 'email', req.body.email);
         const isAuth = await comparePassword(req.body.password, user.passwordhash);
 
@@ -71,8 +75,10 @@ router.post('/login', async (req, res) => {
                 token: generateToken(user.passwordhash)
             });
 
+            if (userAuth.code) throw {msg: 'Client already logged In', ...userAuth};
+
             // set cookie or set headers
-            if (userAuth) res.header("token", userAuth.token);
+            res.header("token", userAuth.token);
 
             res.status(200).json({
                 message: "User Authenticated Successfully",
@@ -86,9 +92,9 @@ router.post('/login', async (req, res) => {
             });
         };
 
-    // } catch (error) {
-    //     res.status(500).json(['Internal ServerError', error]);
-    // };
+    } catch (error) {
+        res.status(500).json(['Internal ServerError', error]);
+    };
 });
 
 module.exports = router;

@@ -6,7 +6,7 @@ const insert = (table, objValue) => {
     return knex(`${table}`).insert(objValue)
     .then( () => knex(`${table}`) )
     .then(resultSet => resultSet.pop())
-    .catch(err => err || err.sqlMessage);
+    .catch(err => err);
 };
 
 const selectOne = (table, col, val) => {
