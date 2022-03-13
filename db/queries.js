@@ -8,6 +8,11 @@ const insert = (table, objValue) => {
     .then(resultSet => resultSet.pop());
 };
 
+const selectOne = (table, email) => {
+    return knex(table).where('email', email).first();
+};
+
 module.exports = {
-    insert
+    insert,
+    selectOne
 };
