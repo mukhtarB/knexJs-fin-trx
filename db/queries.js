@@ -24,11 +24,26 @@ const insert = (table, data) => {
  */
 
 const selectOne = (table, col, val) => {
-    return knex(table).where(col, val).first();
+    return knex(table).where(col, val).first()
+    .catch(err => err);
 };
+
+
+/**
+ * @param {string} table The Table Name
+ * @param {string} col The Column
+ * @param {string} val The stringValue
+ * @returns { Promise<pending> }
+ */
+
+const del = (table, col, val) => {
+    return knex(table)
+    .where(col, val).del();
+}
 
 
 module.exports = {
     insert,
-    selectOne
+    selectOne,
+    del
 };
