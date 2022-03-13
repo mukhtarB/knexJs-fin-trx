@@ -9,8 +9,7 @@ const {generateToken} = require('../utilities/generateToken');
 // router.use('/register', encode);
 
 // queries
-const {insert, selectOne} = require('../db/queries');
-const { cookie } = require('express/lib/response');
+const {insert, selectOne, del} = require('../db/queries');
 
 
 // endpoints
@@ -40,8 +39,8 @@ router.post('/register', async (req, res) => {
             user_id: user.id,
         });
 
-        if (user.code) throw user;
-        if (wallet.code) throw wallet;
+        if (user?.code) throw user;
+        if (wallet?.code) throw wallet;
 
         res.status(200).json({
             user,
@@ -53,6 +52,7 @@ router.post('/register', async (req, res) => {
     };
 
 });
+
 
 // user login endpoint
 router.post('/login', async (req, res) => {
@@ -66,9 +66,13 @@ router.post('/login', async (req, res) => {
 
     try {
         const user = await selectOne('users', 'email', req.body.email);
+        if (!user) return res.status(404).send('Incorrect Email or Password');
+
         const isAuth = await comparePassword(req.body.password, user.passwordhash);
 
-        if (isAuth) {
+        if (user?.code) throw user;
+
+        if (isAuth && user) {
             
             const userAuth = await insert('auth', {
                 user_id: user.id,
@@ -77,7 +81,6 @@ router.post('/login', async (req, res) => {
 
             if (userAuth.code) throw {msg: 'Client already logged In', ...userAuth};
 
-            // set cookie or set headers
             res.header("token", userAuth.token);
 
             res.status(200).json({
@@ -88,10 +91,37 @@ router.post('/login', async (req, res) => {
         } else {
             res.status(401).json({
                 err: 'Unauthorized access',
-                msg: 'Incorrect Username or Password'
+                msg: 'Incorrect Email or Password'
             });
         };
 
+    } catch (error) {
+        res.status(500).json(['Internal ServerError', error]);
+    };
+});
+
+
+// user log out function
+router.get('/logout', async (req, res) => {
+
+    // TO DO:
+    // [x] - retreive token from headers
+    // [x] - query db by token
+    // [x] - query del entry
+
+    try {
+        token = req.headers['token'];
+        const tokenRes = await selectOne('auth', 'token', token);
+
+        if (!tokenRes) return res.status(404).send('token does not exist');
+        if (tokenRes.code) throw tokenRes;
+
+        await del('auth', 'token', tokenRes.token);
+
+        res.status(200).json({
+            successful: true,
+            msg: `Token successfully deleted for user ${tokenRes.user_id}`
+        });
     } catch (error) {
         res.status(500).json(['Internal ServerError', error]);
     };
