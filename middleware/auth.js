@@ -8,9 +8,9 @@ let isLoggedIn = async (req, res, next) => {
         };
 
         const tokenAuthorization = req.header('Authorization');
-        let token = tokenAuthorization.slice(7);
+        if (!tokenAuthorization) return res.status(401).json(message);
 
-        if (!token) return res.status(401).json(message);
+        const token = tokenAuthorization.slice(7);
 
         const tokenRes = await selectOne('auth', 'token', token);
 

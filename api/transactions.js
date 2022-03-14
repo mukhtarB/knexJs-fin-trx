@@ -62,15 +62,17 @@ router.post('/transfer', async (req, res) => {
             currentBalance: userWallet.amount
         });
 
-        const updatedWallet = await update('wallets', 'walletId', userWallet.walletId, {amount: userWallet.amount - req.body.amount});
-        if (!updatedWallet) throw "Can't --find entry in db. Check params and try again";
+        const updateWallet = await update('wallets', 'walletId', userWallet.walletId, {amount: userWallet.amount - req.body.amount});
+        if (!updateWallet) throw "Can't --find entry in db. Check params and try again";
 
-        const updatedWallet_ = await update('wallets', 'walletId', receipientWallet.walletId, {amount: receipientWallet.amount + req.body.amount});
-        if (!updatedWallet_) {
+        const updateWallet_ = await update('wallets', 'walletId', receipientWallet.walletId, {amount: receipientWallet.amount + req.body.amount});
+        if (!updateWallet_) {
             // refund any deductions
             await update('wallets', 'walletId', userWallet.walletId, {amount: userWallet.amount});
             throw "Server Error: Transfer failed, balance refunded";
         };
+
+        const updatedWallet = await selectOne('wallets', 'walletId', req.body.userWalletId);
 
         res.status(200).json({
             msg: `$${req.body.amount} transferred successfully`,
