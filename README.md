@@ -48,14 +48,14 @@ The application runs on development environment by default when in a development
 There are certain environmental variables to be set depending on what server is running the process. they are:
 
 ```
-dev and test servers:
+*dev and test servers:*
 process.env.DB_USER,
 process.env.DB_PASSWORD,
 process.env.DB_NAME,
 process.env.TEST_DB_NAME,
 process.env.secretKey
 
-staging and production:
+*staging and production:*
 process.env.secretKey,
 process.env.DATABASE_URL
 ```
@@ -65,13 +65,13 @@ process.env.DATABASE_URL
 The typical response structure for the routes are in json format of the form:
 
 ```
-On success:
+*On success:*
 statusCode: 200, 401, 404 etc
 payload => a success message & data
 ```
 
 ```
-On error:
+*On error:*
 statusCode: 500
 payload => an error message || error
 ```
@@ -110,7 +110,7 @@ Login: `POST: api/v1/users/login`
 }
 ```
 
-Login: `GET: api/v1/users/logout`
+Logout: `GET: api/v1/users/logout`
 
 > URL Params: None
 
