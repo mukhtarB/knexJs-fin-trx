@@ -5,8 +5,11 @@ const router = Router();
 const {hashPassword, comparePassword} = require('../utilities/hash');
 const {generateToken} = require('../utilities/generateToken');
 
+// import middleware
+const {validateRegisteration} = require('../middleware/validate');
+
 // middleware
-// router.use('/register', encode);
+router.use('/register', validateRegisteration);
 
 // queries
 const {insert, selectOne, del} = require('../db/queries');
@@ -18,7 +21,7 @@ router.get('/', (req, res) => {
 });
 
 // user registeration endpoint
-router.post('/register', async (req, res) => {
+router.post('/register', validateRegisteration, async (req, res) => {
 
     // TO DO:
     // [x] - verify req.body.params
