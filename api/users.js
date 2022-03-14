@@ -7,10 +7,12 @@ const {generateToken} = require('../utilities/generateToken');
 
 // import middleware
 const {validateRegisteration, validateLogin} = require('../middleware/validate');
+const {isLoggedIn} = require('../middleware/auth');
 
 // middleware
 router.use('/register', validateRegisteration);
 router.use('/login', validateLogin);
+router.use('/logout', isLoggedIn);
 
 // queries
 const {insert, selectOne, del} = require('../db/queries');
@@ -106,7 +108,7 @@ router.post('/login', validateLogin, async (req, res) => {
 
 
 // user log out function
-router.get('/logout', async (req, res) => {
+router.get('/logout', isLoggedIn, async (req, res) => {
 
     // TO DO:
     // [x] - retreive token from headers
@@ -114,7 +116,7 @@ router.get('/logout', async (req, res) => {
     // [x] - query del entry
 
     try {
-        token = req.headers['token'];
+        let token = req.headers['token'];
         const tokenRes = await selectOne('auth', 'token', token);
 
         if (!tokenRes) return res.status(404).send('token does not exist');
