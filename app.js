@@ -7,6 +7,7 @@ require('dotenv').config();
 
 // route imports
 const users = require('./api/users');
+const trx = require('./api/transactions');
 
 // app init
 const app = express();
@@ -19,6 +20,7 @@ app.use(cookieParser());
 
 // api routing
 app.use('/api/v1/users', users);
+app.use('/api/v1/transactions', trx);
 
 // Home Route
 app.get('/', (req, res) => {
