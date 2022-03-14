@@ -7,6 +7,7 @@ const {isLoggedIn} = require('../middleware/auth');
 router.use('/', isLoggedIn);
 
 const {update, selectOne} = require('../db/queries');
+const { validateDeposit } = require('../middleware/validate');
 
 
 // endpoints
@@ -16,7 +17,7 @@ router.get('/', (req, res) => {
 
 
 // user can fund account
-router.post('/deposit', async (req, res) => {
+router.post('/deposit', validateDeposit, async (req, res) => {
 
     // TO DO:
     // [x] - retrieve wallet
