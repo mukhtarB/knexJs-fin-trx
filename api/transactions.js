@@ -4,7 +4,7 @@ const router = Router();
 const {isLoggedIn} = require('../middleware/auth');
 
 // require logging on all /transactions/ route
-// router.use('/', isLoggedIn);
+router.use('/', isLoggedIn);
 
 const {update, selectOne} = require('../db/queries');
 
