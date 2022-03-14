@@ -20,7 +20,7 @@ const validateLogin = (req, res, next) => {
 };
 
 
-const valDepositReqBody = (req, res, next) => {
+const valDepositWithdrawalReqBody = (req, res, next) => {
 
     if (!req.body?.walletId) return res.status(400).json('WalletId Field is required');
     if (!req.body?.amount) return res.status(400).json('Amount Field is required');
@@ -42,6 +42,6 @@ const valTransferReqBody = (req, res, next) => {
 module.exports = {
     validateRegisteration,
     validateLogin,
-    valDepositReqBody,
+    valDepositWithdrawalReqBody,
     valTransferReqBody
 };
