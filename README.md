@@ -131,6 +131,33 @@ Deposit: `POST: api/v1/trx/deposit`
 }
 ```
 
+Transfer: `POST: api/v1/trx/transfer`
+
+> URL Params: None
+
+> Post Params:
+
+```json
+{
+    "userWalletId": int,
+    "receipientWalletId": int,
+    "ammount": float
+}
+```
+
+Withdrawal: `POST: api/v1/trx/withdrawals`
+
+> URL Params: None
+
+> Post Params:
+
+```json
+{
+    "walletId": int,
+    "ammount": float
+}
+```
+
 ---
 
 To install api dependencies run:
