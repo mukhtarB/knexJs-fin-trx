@@ -41,7 +41,7 @@ router.post('/register', validateRegisteration, async (req, res) => {
         });
 
         const wallet = await insert('wallets', {
-            walletId: Math.floor(Math.random() * 90000000),
+            walletId: Math.floor(Math.random() * 100000000),
             user_id: user.id,
         });
 

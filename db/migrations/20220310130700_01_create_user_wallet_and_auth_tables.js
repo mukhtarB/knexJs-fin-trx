@@ -13,8 +13,8 @@
     })
     .createTable('wallets', (table) => {
         table.increments();
-        table.string('walletId', 8).notNullable().unique();
-        table.float('amount', 2).notNullable().defaultTo(0.00);
+        table.integer('walletId').notNullable().unsigned().unique();
+        table.float('amount', 9, 2).notNullable().defaultTo(0.00);
         table.integer('user_id').notNullable().unsigned().unique().references('id').inTable('users').onDelete('CASCADE');
         table.timestamps(true, true, true);
     })
