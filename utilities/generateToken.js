@@ -1,11 +1,11 @@
 require('dotenv/config');
-const {MD5} = require('crypto-js');
+const { MD5 } = require('crypto-js');
 
 // generating faux token for the purposes of implementation
 
 /**
  * @param {string} hashing The hash
- * @returns { Promise<pending> }
+ * @returns {string} token
  */
 
 const generateToken = (hashing) => {

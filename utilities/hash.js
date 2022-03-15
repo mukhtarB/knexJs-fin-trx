@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 
 /**
  * @param {string} password Password
- * @returns { Promise<pending> }
+ * @returns {string} hash
  */
 
 const hashPassword = async (password) => {
@@ -16,7 +16,7 @@ const hashPassword = async (password) => {
 /**
  * @param {string} password Password
  * @param {string} passwordhash Passwordhash
- * @returns { Promise<pending> }
+ * @returns {boolean} isPasswordMatch
  */
 
 const comparePassword = async (password, passwordhash) => {
