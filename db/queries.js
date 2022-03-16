@@ -1,4 +1,5 @@
 const knex = require('./knex');
+const { errFn } = require('../utilities/errHandler');
 
 /**
  * - Inserts entry into db
@@ -9,7 +10,7 @@ const knex = require('./knex');
 
 const insert = async (table, data) => {
 
-    if (Object.prototype.toString.call(data) !== '[object Object]') throw {err: 'data must be of object type'};
+    if (Object.prototype.toString.call(data) !== '[object Object]') throw errFn(500, 'data must be of object type');
     
     return knex(`${table}`).insert(data)
     .then( () => knex(`${table}`) )
@@ -43,9 +44,9 @@ const selectOne = async (table, col, val) => {
 
  const update = async (table, identifierCol, identifierValue, data) => {
 
-    if (typeof data !== 'object') throw {err: 'data must be an Object'};
-    if (!identifierCol) throw {err: "strict mode: where clause needed"};
-    if (!identifierValue) throw {err: "strict mode: where clause needs a value"};
+    if (typeof data !== 'object') throw errFn(500, 'data must be an Object');
+    if (!identifierCol) throw errFn(500, "strict mode: where clause needed");
+    if (!identifierValue) throw errFn(500, "strict mode: where clause needs a value");
 
     return knex(table).where(identifierCol, identifierValue)
     .update(data)
@@ -62,8 +63,8 @@ const selectOne = async (table, col, val) => {
 
 const del = (table, col, val) => {
 
-    if (!col) throw {err: "strict mode: where clause needed"};
-    if (!val) throw {err: "strict mode: where clause needs a value"};
+    if (!col) throw errFn(500, "strict mode: where clause needed");
+    if (!val) throw errFn(500, "strict mode: where clause needs a value");
     
     return knex(table)
     .where(col, val).del();
