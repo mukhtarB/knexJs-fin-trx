@@ -9,6 +9,13 @@ let isRequired = (field) => {return {requiredError: `${field} Field is required`
 
 /**
  * @param {string} field Field containing error
+ * @returns {object} The Error object
+ */
+
+ let isPositive = (field) => {return {valueError: `${field} field must be a positive value`}};
+
+/**
+ * @param {string} field Field containing error
  * @param {integer} length expected length of field
  * @returns {object} The Error object
  */
@@ -78,8 +85,11 @@ const valDepositWithdrawalReqBody = (req, res, next) => {
     if (!req.body?.amount)
     return res.status(400).json(isRequired('Amount'));
 
-    if (typeof req.body?.amount !== 'number')
+    if (typeof (req.body?.amount) !== 'number')
     return res.status(400).json(isType('amount', 'number'));
+    
+    if (Math.sign(req.body?.amount) === -1)
+    return res.status(400).json(isPositive('amount'));
 
     next();
 };
@@ -103,8 +113,14 @@ const valTransferReqBody = (req, res, next) => {
     if (req.body?.receipientWalletId.toString().length !== 8)
     return res.status(400).json(hasLength('receipientWalletId', 8));
 
+    if (Math.sign(req.body?.receipientWalletId) === -1)
+    return res.status(400).json(isPositive('receipientWalletId'));
+
     if (!req.body?.amount) return res.status(400).json(isRequired('Amount'));
     if (typeof req.body?.amount !== 'number') return res.status(400).json(isType('amount', 'number'));
+
+    if (Math.sign(req.body?.amount) === -1)
+    return res.status(400).json(isPositive('amount'));
 
     next();
 };
