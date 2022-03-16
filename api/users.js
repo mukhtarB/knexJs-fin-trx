@@ -1,36 +1,32 @@
-const {Router} = require('express');
+const { Router } = require('express');
 const router = Router();
 
 // import utilities
-const {hashPassword, comparePassword} = require('../utilities/hash');
-const {generateToken} = require('../utilities/generateToken');
+const { hashPassword, comparePassword } = require('../utilities/hash');
+const { generateToken } = require('../utilities/generateToken');
+const { errFn } = require('../utilities/errHandler');
 
 // import middleware
-const {validateRegisteration, validateLogin} = require('../middleware/validate');
-const {isLoggedIn} = require('../middleware/auth');
+const { validateRegisteration, validateLogin } = require('../middleware/validate');
+const { isLoggedIn } = require('../middleware/auth');
 
-// middleware
+// use middleware
 router.use('/register', validateRegisteration);
 router.use('/login', validateLogin);
 router.use('/logout', isLoggedIn);
 
 // queries
-const {insert, selectOne, del} = require('../db/queries');
+const { insert, selectOne, del } = require('../db/queries');
 
 
 // endpoints
 router.get('/', (req, res) => {
-    res.send('crud users api');
+    res.status(200).send('users api route: Authentication Logic');
 });
+
 
 // user registeration endpoint
 router.post('/register', validateRegisteration, async (req, res) => {
-
-    // TO DO:
-    // [x] - verify req.body.params
-    // [x] - utility: hash password
-    // [x] - queries: save user to db via knex queries
-    // [x] - queries: generate walletID for user
 
     try {
         const user = await insert('users', {
@@ -45,16 +41,16 @@ router.post('/register', validateRegisteration, async (req, res) => {
             user_id: user.id,
         });
 
-        if (user?.code) throw user;
-        if (wallet?.code) throw wallet;
+        if (user?.errno) throw errFn(400, user);
+        if (wallet?.errno) throw errFn(400, wallet);
 
-        res.status(200).json({
+        res.status(201).json({
             user,
             wallet
         });
 
     } catch (error) {
-        res.status(500).json(['Internal ServerError', error]);
+        res.status(error.statusCode || 500).json(['Internal ServerError', error]);
     };
 
 });
@@ -63,20 +59,13 @@ router.post('/register', validateRegisteration, async (req, res) => {
 // user login endpoint
 router.post('/login', validateLogin, async (req, res) => {
 
-    // TO DO:
-    // [x] - retreive & verify login details
-    // [x] - utility: compare passwords
-    // [x] - utility: onSuccess generate token, else unauthorized
-    // [x] - query: save token
-    // [x] - set headers/cookies for token
-
     try {
         const user = await selectOne('users', 'email', req.body.email);
-        if (!user) return res.status(404).send('Incorrect Email or Password');
+
+        if (!user) return res.status(404).send(errFn(404, 'Incorrect Email or Password'));
+        if (user?.errno) throw errFn(400, user);
 
         const isAuth = await comparePassword(req.body.password, user.passwordhash);
-
-        if (user?.code) throw user;
 
         if (isAuth && user) {
             
@@ -85,9 +74,9 @@ router.post('/login', validateLogin, async (req, res) => {
                 token: generateToken(user.passwordhash)
             });
 
-            if (userAuth.code) throw {msg: 'Client already logged In', ...userAuth};
+            if (userAuth.errno) throw errFn(400, userAuth);
 
-            res.header("token", userAuth.token);
+            // req.headers.authorization = userAuth.token;
 
             res.status(200).json({
                 message: "User Authenticated Successfully",
@@ -95,14 +84,11 @@ router.post('/login', validateLogin, async (req, res) => {
                 token: userAuth.token
             });
         } else {
-            res.status(401).json({
-                err: 'Unauthorized access',
-                msg: 'Incorrect Email or Password'
-            });
+            res.status(401).json(errFn(401, 'Unauthorized access: Incorrect Email or Password'));
         };
 
     } catch (error) {
-        res.status(500).json(['Internal ServerError', error]);
+        res.status(error.statusCode || 500).json(['Internal ServerError', error]);
     };
 });
 
@@ -110,26 +96,16 @@ router.post('/login', validateLogin, async (req, res) => {
 // user log out function
 router.get('/logout', isLoggedIn, async (req, res) => {
 
-    // TO DO:
-    // [x] - retreive token from headers
-    // [x] - query db by token
-    // [x] - query del entry
-
     try {
-        let token = req.headers['token'];
-        const tokenRes = await selectOne('auth', 'token', token);
-
-        if (!tokenRes) return res.status(404).send('token does not exist');
-        if (tokenRes.code) throw tokenRes;
-
-        await del('auth', 'token', tokenRes.token);
+        const token = req.header('Authorization').slice(7);
+        await del('auth', 'token', token);
 
         res.status(200).json({
             successful: true,
-            msg: `Token successfully deleted for user ${tokenRes.user_id}`
+            msg: 'User Token successfully deleted'
         });
     } catch (error) {
-        res.status(500).json(['Internal ServerError', error]);
+        res.status(error.statusCode || 500).json(['Internal ServerError', error]);
     };
 });
 
