@@ -1,43 +1,39 @@
-const {Router} = require('express');
+const { Router } = require('express');
 const router = Router();
 
-const {isLoggedIn} = require('../middleware/auth');
+const { isLoggedIn } = require('../middleware/auth');
 
-// require logging on all /transactions/ route
 router.use('/', isLoggedIn);
 
-const {update, selectOne} = require('../db/queries');
+const { update, selectOne } = require('../db/queries');
 const { valDepositWithdrawalReqBody, valTransferReqBody } = require('../middleware/validate');
+const { errFn } = require('../utilities/errHandler');
 
 
 // endpoints
 router.get('/', (req, res) => {
-    res.status(200).send('transaction api: Buisness Logic');
+    res.status(200).send('transaction api route: Buisness Logic');
 });
 
 
 // user can fund account
 router.post('/deposit', valDepositWithdrawalReqBody, async (req, res) => {
 
-    // TO DO:
-    // [x] - retrieve wallet
-    // [x] - update wallet.amount (credit)
-
     try {
-        const wallet = await selectOne('wallets', 'walletId', req.body.walletId);
-        if (!wallet) throw "Can't retrieve wallet details. Check params & retry";
+        const wallet = await selectOne('wallets', 'user_id', res.locals.app_user_id);
+        if (!wallet) throw errFn(404, "Resource: wallet, not Found. Check params & retry");
 
-        const updated = await update('wallets', 'walletId', req.body.walletId, {amount: wallet.amount + req.body.amount});
-        if (!updated || updated == 0) throw "Can't find entry in db. Check params and try again";
+        const updated = await update('wallets', 'walletId', wallet.walletId, {amount: wallet.amount + req.body.amount});
+        if (!updated) throw errFn(404, "Server update request failed Check params and try again");
 
-        const updatedWallet = await selectOne('wallets', 'walletId', req.body.walletId);
+        const updatedWallet = await selectOne('wallets', 'walletId', wallet.walletId);
 
         res.status(200).json({
             msg: 'Wallet funded successfully',
             currentBalance: updatedWallet.amount
         });
     } catch (error) {
-        res.status(500).json(['Internal ServerError', error]);
+        res.status(error.status || 500).json(['Internal ServerError', error]);
     };
     
 });
@@ -46,17 +42,12 @@ router.post('/deposit', valDepositWithdrawalReqBody, async (req, res) => {
 // user can transfer funds to diff account
 router.post('/transfer', valTransferReqBody, async (req, res) => {
 
-    // TO DO:
-    // [x] - retrieve userWallet && receipientWallet
-    // [x] - update userWallet (debit)
-    // [x] - update mreceipentallet (credit)
-
     try {
-        const userWallet = await selectOne('wallets', 'walletId', req.body.userWalletId);
-        if (!userWallet) throw "Can't retrieve wallets details. Check params & retry";
+        const userWallet = await selectOne('wallets', 'user_id', res.locals.app_user_id);
+        if (!userWallet) throw errFn(404, "cannot retreive Resource: userWallet; not found");
         
         const receipientWallet = await selectOne('wallets', 'walletId', req.body.receipientWalletId);
-        if (!receipientWallet) throw "Can't retrieve wallets details. Check params & retry";
+        if (!receipientWallet) errFn(404, "cannot retreive Resource: receipientWalletId; not found");
 
         if (userWallet.amount < req.body.amount) return res.status(200).json({
             msg: 'Insufficient Balance, Transfer failed',
@@ -64,16 +55,16 @@ router.post('/transfer', valTransferReqBody, async (req, res) => {
         });
 
         const updateWallet = await update('wallets', 'walletId', userWallet.walletId, {amount: userWallet.amount - req.body.amount});
-        if (!updateWallet) throw "Can't --find entry in db. Check params and try again";
+        if (!updateWallet) throw errFn(404, "Transfer not initiated, can't access db");
 
         const updateWallet_ = await update('wallets', 'walletId', receipientWallet.walletId, {amount: receipientWallet.amount + req.body.amount});
         if (!updateWallet_) {
-            // refund any deductions
+            // on failed: refund any deductions
             await update('wallets', 'walletId', userWallet.walletId, {amount: userWallet.amount});
-            throw "Server Error: Transfer failed, balance refunded";
+            throw errFn(404, "Server Error: Transfer failed, balance refunded");
         };
 
-        const updatedWallet = await selectOne('wallets', 'walletId', req.body.userWalletId);
+        const updatedWallet = await selectOne('wallets', 'walletId', userWallet.walletId);
 
         res.status(200).json({
             msg: `$${req.body.amount} transferred successfully`,
@@ -88,23 +79,20 @@ router.post('/transfer', valTransferReqBody, async (req, res) => {
 // user can withdraw from account
 router.post('/withdrawals', valDepositWithdrawalReqBody, async (req, res) => {
 
-    // TO DO:
-    // [x] - retrieve wallet
-    // [x] - update wallet.amount (debit)
-
     try {
-        const wallet = await selectOne('wallets', 'walletId', req.body.walletId);
-        if (!wallet) throw "Can't retrieve wallet details. Check params & retry";
+        // query wallet based on user and not walletID
+        const wallet = await selectOne('wallets', 'walletId', res.locals.app_user_id);
+        if (!wallet) throw errFn(404, "Resource: wallet, not Found. Check params & retry");
 
         if (wallet.amount < req.body.amount) return res.status(200).json({
             msg: 'Insufficient Balance, Transfer failed',
             currentBalance: wallet.amount
         });
 
-        const updated = await update('wallets', 'walletId', req.body.walletId, {amount: wallet.amount - req.body.amount});
-        if (!updated) throw "Can't find entry in db. Check params and try again";
+        const updated = await update('wallets', 'walletId', wallet.walletId, {amount: wallet.amount - req.body.amount});
+        if (!updated) throw errFn(404, "Server update request failed. Check params and try again");
 
-        const updatedWallet = await selectOne('wallets', 'walletId', req.body.walletId);
+        const updatedWallet = await selectOne('wallets', 'walletId', wallet.walletId);
 
         res.status(200).json({
             msg: 'Withdrawals were successfully',
