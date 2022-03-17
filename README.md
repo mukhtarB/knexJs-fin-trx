@@ -1,6 +1,6 @@
 # fin-trx-api
 
-A restful api for fintech services
+A restful api for delivering fintech services
 
 ### The Challenge
 
