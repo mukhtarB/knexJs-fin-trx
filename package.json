@@ -7,7 +7,8 @@
     "start": "node ./bin/www",
     "devServer": "nodemon app.js",
     "dev": "nodemon ./bin/www",
-    "test": "jest --watchAll"
+    "test": "jest --watchAll",
+    "mtest": "mocha"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
@@ -22,6 +23,7 @@
   },
   "devDependencies": {
     "jest": "^27.5.1",
+    "mocha": "^9.2.2",
     "nodemon": "^2.0.15",
     "supertest": "^6.2.2"
   }
