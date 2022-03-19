@@ -31,7 +31,14 @@
  * @returns { Promise<void> }
  */
 exports.down = function(knex, Promise) {
-    return knex.schema.dropTable(users)
-    .dropTable(wallet)
-    .dropTable(faux_auth);
+    return knex.schema
+    .table('wallets', (table) => {
+        table.dropForeign('user_id')
+    })
+    .table('auth', (table) => {
+        table.dropForeign('user_id')
+    })    
+    .dropTableIfExists('users')
+    .dropTableIfExists('wallets')
+    .dropTableIfExists('auth')
 };
