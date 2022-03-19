@@ -62,7 +62,7 @@ router.post('/login', validateLogin, async (req, res) => {
     try {
         const user = await selectOne('users', 'email', req.body.email);
 
-        if (!user) return res.status(404).send(errFn(404, 'Incorrect Email or Password'));
+        if (!user) return res.status(401).send(errFn(401, 'Incorrect Email or Password'));
         if (user?.errno) throw errFn(400, user);
 
         const isAuth = await comparePassword(req.body.password, user.passwordhash);
