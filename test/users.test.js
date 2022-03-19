@@ -8,12 +8,11 @@ describe('Users API Route', () => {
 
     describe('GET /Users', () => {
         it('should return a statement', async () => {
-            const response = await request(app)
+            await request(app)
             .get('/api/v1/users/')
             .expect(200)
             .expect('Content-Type', 'text/html; charset=utf-8')
-
-            expect(response.text).toBe('users api route: Authentication Logic')
+            .expect('users api route: Authentication Logic')
         });
     });
 
