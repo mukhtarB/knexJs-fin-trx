@@ -103,6 +103,39 @@ describe('Users API Route', () => {
             .catch(err => {throw err});
         });
 
+        it('should reject duplicate data', async () => {
+
+            await request(app)
+            .post('/api/v1/users/register')
+            .send({
+                firstName: 'Salsa',
+                lastName: 'Verde',
+                email: 'salVerde@email.com',
+                password: 'localoca'
+            })
+            .expect(400)
+            .expect('Content-Type', /json/)
+            
+            .then( response => {
+                expect(response.body).toEqual(
+                    expect.arrayContaining([
+                        expect.stringContaining('ServerError'),
+                        expect.objectContaining({
+                            statusCode: expect.any(Number),
+                            errMsg: expect.objectContaining({
+                                code: expect.any(String),
+                                errno: expect.any(Number),
+                            }),
+                        }),
+                    ]),
+                );
+                expect(response.body[1].statusCode).toBe(400);
+                expect(response.body[1].errMsg.code).toBe('ER_DUP_ENTRY');
+                expect(response.body[1].errMsg.errno).toBe(1062);
+            })
+            .catch(err => {throw err});
+        });
+
     });
 
 });
