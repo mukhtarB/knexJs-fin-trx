@@ -220,6 +220,27 @@ describe('Users API Route', () => {
             .expect(401)
             .expect('Content-Type', /json/)
         });
+        
+        it('should log user out', async () => {
+            await knex.seed.run();
+            await request(app)
+            .get('/api/v1/users/logout')
+            .set('Authorization', 'Bearer seededTokenForUserSix')
+            .expect(200)
+            .expect('Content-Type', /json/)
+
+            .then( response => {
+                expect(response.body).toHaveProperty('successful');
+                expect(response.body.successful).toBe(true);
+
+                expect(response.body).toHaveProperty('msg');
+                expect(response.body.msg).toBe('User Token successfully deleted');
+
+                expect(response.body).toHaveProperty('token');
+                expect(response.body.token).toBe('seededTokenForUserSix');
+            })
+            .catch(err => {throw err});
+        });
     });
 
 });
