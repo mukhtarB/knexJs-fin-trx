@@ -58,6 +58,38 @@ describe('Users API Route', () => {
             .catch(err => {throw err});
         });
 
+        it('should successfully post data to db', async () => {
+            const data = {
+                firstName: 'Salsa',
+                lastName: 'Verde',
+                email: 'salVerde@email.com',
+                password: 'localoca'
+            };
+
+            await request(app)
+            .post('/api/v1/users/register')
+            .send(data)
+            .expect(201)
+            .expect('Content-Type', /json/)
+
+            .then( response => {
+                expect(response.body).toHaveProperty('user');
+                expect(response.body.user).toBeTruthy();
+                expect(response.body).toHaveProperty('wallet');
+                expect(response.body.wallet).toBeTruthy();
+
+                expect(response.body.user.passwordhash).toBeTruthy();
+                expect(response.body.user.firstName).toBe(data.firstName);
+                expect(response.body.user.lastName).toBe(data.lastName);
+                expect(response.body.user.email).toBe(data.email);
+
+                expect(response.body.wallet.walletId.toString()).toHaveLength(8);
+                expect(response.body.wallet.amount).toBe(0.00);
+                expect(response.body.wallet.user_id).toBe(response.body.user.id);
+            })
+            .catch(err => {throw err});
+        });
+
     });
 
 });
