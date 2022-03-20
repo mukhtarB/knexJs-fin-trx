@@ -37,7 +37,7 @@ exports.down = function(knex, Promise) {
     })
     .table('auth', (table) => {
         table.dropForeign('user_id')
-    })    
+    })
     .dropTableIfExists('users')
     .dropTableIfExists('wallets')
     .dropTableIfExists('auth')
