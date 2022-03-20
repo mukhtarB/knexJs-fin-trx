@@ -212,4 +212,14 @@ describe('Users API Route', () => {
         });
     });
 
+    describe('GET /logout', () => {
+
+        it('should be protected', async () => {
+            await request(app)
+            .get('/api/v1/users/logout')
+            .expect(401)
+            .expect('Content-Type', /json/)
+        });
+    });
+
 });
