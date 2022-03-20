@@ -186,6 +186,30 @@ describe('Users API Route', () => {
                 .catch(err => {throw err});
             };
         });
+
+        it('should log user in successfully', async () => {
+
+            await request(app)
+            .post('/api/v1/users/login')
+            .send({
+                email: 'salVerde@email.com',
+                password: 'localoca'
+            })
+            .expect(200)
+            .expect('Content-Type', /json/)
+
+            .then( response => {
+                expect(response.body).toHaveProperty('message');
+                expect(response.body.message).toBe('User Authenticated Successfully');
+
+                expect(response.body).toHaveProperty('uid');
+                expect(response.body.uid).toBeTruthy();
+
+                expect(response.body).toHaveProperty('token');
+                expect(response.body.token).toBeTruthy();
+            })
+            .catch(err => {throw err});
+        });
     });
 
 });
