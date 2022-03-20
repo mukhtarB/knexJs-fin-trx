@@ -135,7 +135,30 @@ describe('Users API Route', () => {
             })
             .catch(err => {throw err});
         });
+    });
 
+    describe('POST /login', () => {
+
+        it('should reject invalid params: type 1', async () => {
+            const reqBodies = [
+                {email: 'sal-verde@gmail.com'},
+                {password: 'Salsa'},
+            ];
+    
+            for (let field of reqBodies) {
+                await request(app)
+                .post('/api/v1/users/login')
+                .send(field)
+                .expect(400)
+                .expect('Content-Type', /json/)
+                .then(response => {
+                    expect(response.statusCode).toBe(400);
+                    expect(response.body).toHaveProperty('requiredError');
+                    expect(response.body.requiredError).toBe('Email and Password Field is required');
+                })
+                .catch(err => {throw err});
+            };
+        });
     });
 
 });
