@@ -159,6 +159,33 @@ describe('Users API Route', () => {
                 .catch(err => {throw err});
             };
         });
+        
+        it('should reject invalid params: type 2', async () => {
+            const reqBodies = [
+                {
+                    email: 'sansaVerde@email.com',
+                    password: 'localoca'
+                },
+                {
+                    email: 'salVerde@email.com',
+                    password: 'localocal'
+                },
+            ];
+
+            for (let field of reqBodies) {
+                await request(app)
+                .post('/api/v1/users/login')
+                .send(field)
+                .expect(401)
+                .expect('Content-Type', /json/)
+                .then(response => {
+                    expect(response.body).toHaveProperty('statusCode');
+                    expect(response.body).toHaveProperty('errMsg');
+                    expect(response.body.errMsg).toMatch(/Incorrect Email or Password/);
+                })
+                .catch(err => {throw err});
+            };
+        });
     });
 
 });
