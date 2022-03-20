@@ -37,7 +37,7 @@ router.post('/register', validateRegisteration, async (req, res) => {
         });
 
         const wallet = await insert('wallets', {
-            walletId: Math.floor(Math.random() * 100000000),
+            walletId: Math.floor(Math.random() * 90000000) + 10000000,
             user_id: user.id,
         });
 
@@ -76,8 +76,6 @@ router.post('/login', validateLogin, async (req, res) => {
 
             if (userAuth.errno) throw errFn(400, userAuth);
 
-            // req.headers.authorization = userAuth.token;
-
             res.status(200).json({
                 message: "User Authenticated Successfully",
                 uid: user.id,
@@ -102,7 +100,8 @@ router.get('/logout', isLoggedIn, async (req, res) => {
 
         res.status(200).json({
             successful: true,
-            msg: 'User Token successfully deleted'
+            msg: 'User Token successfully deleted',
+            token: token
         });
     } catch (error) {
         res.status(error.statusCode || 500).json(['Internal ServerError', error]);
