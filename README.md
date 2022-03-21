@@ -29,7 +29,7 @@ The broad system architecture is mainly in 3 parts, the client, the api, and the
 
 The db schema structure involves three basic tables in interelation with each other as shown below;
 
-![alt text](https://drive.google.com/file/d/1qME2-z81gKa7cC6fo_4fQVc-KTcbI2f0/view?usp=sharing "Database Schema design")
+[Database schema design](db/db-schema.png)
 
 ### auth
 
